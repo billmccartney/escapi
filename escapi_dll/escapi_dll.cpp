@@ -1,6 +1,7 @@
 #include "windows.h"
 #define ESCAPI_DEFINITIONS_ONLY
 #include "escapi.h"
+#include <stdio.h>
 
 
 #define MAXDEVICES 16
@@ -19,6 +20,7 @@ extern int GetErrorLine(int device);
 extern float GetProperty(int device, int prop);
 extern int GetPropertyAuto(int device, int prop);
 extern int SetProperty(int device, int prop, float value, int autoval);
+extern int GetPropertyRange(int aDevice, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags);
 
 BOOL APIENTRY DllMain(HANDLE hModule,
 	DWORD  ul_reason_for_call,
@@ -129,6 +131,15 @@ extern "C" int __declspec(dllexport) setCaptureProperty(unsigned int deviceno, i
 	if (deviceno > MAXDEVICES)
 		return 0;
 	return SetProperty(deviceno, prop, value, autoval);
+}
+
+extern "C" int __declspec(dllexport) getCapturePropertyRange(unsigned int deviceno, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags)
+{
+	printf("testing.. %d %d\n", deviceno, aProp);
+	fflush(stdout);
+	if (deviceno > MAXDEVICES)
+		return 0;
+	return GetPropertyRange(deviceno, aProp, minimum, maximum, step, def, flags);
 }
 
 extern "C" int __declspec(dllexport) initCaptureWithOptions(unsigned int deviceno, struct SimpleCapParams *aParams, unsigned int aOptions)

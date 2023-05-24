@@ -79,6 +79,9 @@ typedef float (*getCapturePropertyValueProc)(unsigned int deviceno, int prop);
 typedef int(*getCapturePropertyAutoProc)(unsigned int deviceno, int prop);
 /* Set camera property to a value (0..1) and whether it should be set to auto. */
 typedef int (*setCapturePropertyProc)(unsigned int deviceno, int prop, float value, int autoval);
+/* gets the range of camera properties (returns true if it succeeds, other wise 0 upon error */
+typedef int (*getCapturePropertyRange)(unsigned int deviceno, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags);
+
 
 /*
 	All error situations in ESCAPI are considered catastrophic. If such should

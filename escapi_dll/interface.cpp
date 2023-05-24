@@ -198,3 +198,12 @@ int SetProperty(int aDevice, int aProp, float aValue, int aAutoval)
 		return 0;
 	return gDevice[aDevice]->setProperty(aProp, aValue, aAutoval);
 }
+
+int GetPropertyRange(int aDevice, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags)
+{
+	CheckForFail(aDevice);
+	if (!gDevice[aDevice])
+		return 0;
+	int results = gDevice[aDevice]->getPropertyRange(aProp, minimum, maximum, step, def, flags);
+	return results;
+}

@@ -376,6 +376,36 @@ int CaptureClass::getProperty(int aProperty, float &aValue, int &aAuto)
 	return 1;
 }
 
+int CaptureClass::getPropertyRange(int aProperty, long * minimum, long * maximum, long * step, long * def, long * flags) {
+	HRESULT hr;
+	IAMVideoProcAmp* procAmp = NULL;
+	IAMCameraControl* control = NULL;
+	int prop = escapiPropToMFProp(aProperty);
+
+	if (aProperty < CAPTURE_PAN)
+	{
+		hr = mSource->QueryInterface(IID_PPV_ARGS(&procAmp));
+		if (SUCCEEDED(hr))
+		{
+			hr = procAmp->GetRange(prop, minimum, maximum, step, def, flags);
+			procAmp->Release();
+			return SUCCEEDED(hr);
+		}
+	}
+	else
+	{
+		hr = mSource->QueryInterface(IID_PPV_ARGS(&control));
+		if (SUCCEEDED(hr))
+		{
+			hr = control->GetRange(prop, minimum, maximum, step, def, flags);
+			control->Release();
+			return SUCCEEDED(hr);
+		}
+	}
+
+	return 0;
+}
+
 BOOL CaptureClass::isFormatSupported(REFGUID aSubtype) const
 {
 	int i;
