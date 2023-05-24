@@ -317,6 +317,37 @@ int CaptureClass::setProperty(int aProperty, float aValue, int aAuto)
 	return 1;
 }
 
+int CaptureClass::setPropertyRaw(int aProperty, long aValue, long aAuto)
+{
+	HRESULT hr;
+	IAMVideoProcAmp* procAmp = NULL;
+	IAMCameraControl* control = NULL;
+
+	int prop = escapiPropToMFProp(aProperty);
+
+	if (aProperty < CAPTURE_PAN)
+	{
+		hr = mSource->QueryInterface(IID_PPV_ARGS(&procAmp));
+		if (SUCCEEDED(hr))
+		{
+			hr = procAmp->Set(prop, aValue, aAuto ? VideoProcAmp_Flags_Auto : VideoProcAmp_Flags_Manual);
+			procAmp->Release();
+			return !!SUCCEEDED(hr);
+		}
+	}
+	else
+	{
+		hr = mSource->QueryInterface(IID_PPV_ARGS(&control));
+		if (SUCCEEDED(hr))
+		{
+			hr = control->Set(prop, aValue, aAuto ? VideoProcAmp_Flags_Auto : VideoProcAmp_Flags_Manual);
+			control->Release();
+			return !!SUCCEEDED(hr);
+		}
+	}
+	return 0;
+}
+
 int CaptureClass::getProperty(int aProperty, float &aValue, int &aAuto)
 {
 	HRESULT hr;
@@ -374,6 +405,53 @@ int CaptureClass::getProperty(int aProperty, float &aValue, int &aAuto)
 	}
 
 	return 1;
+}
+
+int CaptureClass::getPropertyRaw(int aProperty, long* aValue, long* aAuto)
+{
+	HRESULT hr;
+	IAMVideoProcAmp* procAmp = NULL;
+	IAMCameraControl* control = NULL;
+
+	*aAuto = 0;
+	*aValue = -1;
+
+	int prop = escapiPropToMFProp(aProperty);
+
+	if (aProperty < CAPTURE_PAN)
+	{
+		hr = mSource->QueryInterface(IID_PPV_ARGS(&procAmp));
+		if (SUCCEEDED(hr))
+		{
+			long v = 0, f = 0;
+			hr = procAmp->Get(prop, &v, &f);
+			if (SUCCEEDED(hr))
+			{
+				*aValue = v;
+				*aAuto = !!(f & VideoProcAmp_Flags_Auto);
+			}
+			procAmp->Release();
+			return SUCCEEDED(hr);
+		}
+	}
+	else
+	{
+		hr = mSource->QueryInterface(IID_PPV_ARGS(&control));
+		if (SUCCEEDED(hr))
+		{
+			long v = 0, f = 0;
+			hr = control->Get(prop, &v, &f);
+			if (SUCCEEDED(hr))
+			{
+				*aValue = v;
+				*aAuto = !!(f & VideoProcAmp_Flags_Auto);
+			}
+			control->Release();
+			return SUCCEEDED(hr);
+		}
+	}
+
+	return 0;
 }
 
 int CaptureClass::getPropertyRange(int aProperty, long * minimum, long * maximum, long * step, long * def, long * flags) {

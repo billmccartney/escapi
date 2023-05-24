@@ -207,3 +207,21 @@ int GetPropertyRange(int aDevice, int aProp, long* minimum, long* maximum, long*
 	int results = gDevice[aDevice]->getPropertyRange(aProp, minimum, maximum, step, def, flags);
 	return results;
 }
+
+int GetPropertyRaw(int aDevice, int aProp, long * aValue, long * aAuto)
+{
+	CheckForFail(aDevice);
+	if (!gDevice[aDevice])
+		return 0;
+	int results = gDevice[aDevice]->getPropertyRaw(aProp, aValue, aAuto);
+	return results;
+}
+
+int SetPropertyRaw(int aDevice, int aProp, long aValue, long aAuto)
+{
+	CheckForFail(aDevice);
+	if (!gDevice[aDevice])
+		return 0;
+	int results = gDevice[aDevice]->setPropertyRaw(aProp, aValue, aAuto);
+	return results;
+}

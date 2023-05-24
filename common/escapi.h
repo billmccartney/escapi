@@ -81,6 +81,10 @@ typedef int(*getCapturePropertyAutoProc)(unsigned int deviceno, int prop);
 typedef int (*setCapturePropertyProc)(unsigned int deviceno, int prop, float value, int autoval);
 /* gets the range of camera properties (returns true if it succeeds, other wise 0 upon error */
 typedef int (*getCapturePropertyRangeProc)(unsigned int deviceno, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags);
+/* gets the raw value of the camera property (long) */
+typedef int (*getCapturePropertyRawProc)(int aDevice, int aProp, long* aValue, long* aAuto);
+/* sets the raw value of the camera property (long) */
+typedef int (*setCapturePropertyRawProc)(int aDevice, int aProp, long aValue, long aAuto);
 
 
 /*

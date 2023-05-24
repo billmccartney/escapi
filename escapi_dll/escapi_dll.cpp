@@ -21,6 +21,8 @@ extern float GetProperty(int device, int prop);
 extern int GetPropertyAuto(int device, int prop);
 extern int SetProperty(int device, int prop, float value, int autoval);
 extern int GetPropertyRange(int aDevice, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags);
+extern int GetPropertyRaw(int aDevice, int aProp, long* aValue, long* aAuto);
+extern int SetPropertyRaw(int aDevice, int aProp, long aValue, long aAuto);
 
 BOOL APIENTRY DllMain(HANDLE hModule,
 	DWORD  ul_reason_for_call,
@@ -135,12 +137,25 @@ extern "C" int __declspec(dllexport) setCaptureProperty(unsigned int deviceno, i
 
 extern "C" int __declspec(dllexport) getCapturePropertyRange(unsigned int deviceno, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags)
 {
-	printf("testing.. %d %d\n", deviceno, aProp);
-	fflush(stdout);
 	if (deviceno > MAXDEVICES)
 		return 0;
 	return GetPropertyRange(deviceno, aProp, minimum, maximum, step, def, flags);
 }
+
+extern "C" int __declspec(dllexport) getCapturePropertyRaw(unsigned int deviceno, int aProp, long* aValue, long* aAuto)
+{
+	if (deviceno > MAXDEVICES)
+		return 0;
+	return GetPropertyRaw(deviceno, aProp, aValue, aAuto);
+}
+
+extern "C" int __declspec(dllexport) setCapturePropertyRaw(unsigned int deviceno, int aProp, long aValue, long aAuto)
+{
+	if (deviceno > MAXDEVICES)
+		return 0;
+	return SetPropertyRaw(deviceno, aProp, aValue, aAuto);
+}
+
 
 extern "C" int __declspec(dllexport) initCaptureWithOptions(unsigned int deviceno, struct SimpleCapParams *aParams, unsigned int aOptions)
 {

@@ -22,6 +22,8 @@ public:
 	int escapiPropToMFProp(int aProperty);
 	int setProperty(int aProperty, float aValue, int aAuto);
 	int getProperty(int aProperty, float &aValue, int &aAuto);
+	int getPropertyRaw(int aProperty, long* aValue, long* aAuto);
+	int setPropertyRaw(int aProperty, long aValue, long aAuto);
 	int getPropertyRange(int aProperty, long* minimum, long* maximum, long* step, long* def, long* flags);
 	BOOL isFormatSupported(REFGUID aSubtype) const;
 	HRESULT getFormat(DWORD aIndex, GUID *aSubtype) const;
