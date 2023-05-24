@@ -14,7 +14,7 @@ setCapturePropertyProc setCaptureProperty;
 getCaptureErrorLineProc getCaptureErrorLine;
 getCaptureErrorCodeProc getCaptureErrorCode;
 initCaptureWithOptionsProc initCaptureWithOptions;
-
+getCapturePropertyRangeProc getCapturePropertyRange;
 
 /* Internal: initialize COM */
 typedef void (*initCOMProc)();
@@ -39,6 +39,7 @@ int setupESCAPI()
   getCapturePropertyValue = (getCapturePropertyValueProc)GetProcAddress(capdll, "getCapturePropertyValue");
   getCapturePropertyAuto = (getCapturePropertyAutoProc)GetProcAddress(capdll, "getCapturePropertyAuto");
   setCaptureProperty = (setCapturePropertyProc)GetProcAddress(capdll, "setCaptureProperty");
+  getCapturePropertyRange = (getCapturePropertyRangeProc)GetProcAddress(capdll, "getCapturePropertyRange");
   getCaptureErrorLine = (getCaptureErrorLineProc)GetProcAddress(capdll, "getCaptureErrorLine");
   getCaptureErrorCode = (getCaptureErrorCodeProc)GetProcAddress(capdll, "getCaptureErrorCode");
   initCaptureWithOptions = (initCaptureWithOptionsProc)GetProcAddress(capdll, "initCaptureWithOptions");
