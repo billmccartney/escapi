@@ -10,7 +10,7 @@ extern struct SimpleCapParams gParams[];
 extern int gDoCapture[];
 extern int gOptions[];
 
-extern HRESULT InitDevice(int device);
+extern HRESULT InitDevice(int device, int selectedMode);
 extern void CleanupDevice(int device);
 extern int CountCaptureDevices();
 extern void GetCaptureDeviceName(int deviceno, char * namebuffer, int bufferlength);
@@ -72,7 +72,9 @@ extern "C" int __declspec(dllexport) initCapture(unsigned int deviceno, struct S
 	gDoCapture[deviceno] = 0;
 	gParams[deviceno] = *aParams;
 	gOptions[deviceno] = 0;
-	if (FAILED(InitDevice(deviceno))) return 0;
+	int mode = aParams->selectedMode;
+	if (!aParams->forceOverride)mode = -1;
+	if (FAILED(InitDevice(deviceno, mode))) return 0;
 	return 1;
 }
 
@@ -170,7 +172,9 @@ extern "C" int __declspec(dllexport) initCaptureWithOptions(unsigned int devicen
 	gDoCapture[deviceno] = 0;
 	gParams[deviceno] = *aParams;
 	gOptions[deviceno] = aOptions;
-	if (FAILED(InitDevice(deviceno))) return 0;
+	int mode = aParams->selectedMode;
+	if (!aParams->forceOverride)mode = -1;
+	if (FAILED(InitDevice(deviceno, mode))) return 0;
 	return 1;
 }
 

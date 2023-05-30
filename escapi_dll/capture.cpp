@@ -140,6 +140,20 @@ STDMETHODIMP CaptureClass::OnReadSample(
 						mCaptureBufferWidth,
 						mCaptureBufferHeight
 						);
+
+
+					int i, j;
+					int* dst = (int*)gParams[mWhoAmI].mTargetBuf;
+					int* src = (int*)mCaptureBuffer;
+					for (i = 0; i < gParams[mWhoAmI].mHeight; i++)
+					{
+						for (j = 0; j < gParams[mWhoAmI].mWidth; j++, dst++)
+						{
+							*dst = src[
+								(i * mCaptureBufferHeight / gParams[mWhoAmI].mHeight) * mCaptureBufferWidth +
+									(j * mCaptureBufferWidth / gParams[mWhoAmI].mWidth)];
+						}
+					}
 				}
 				else
 				{
@@ -147,7 +161,18 @@ STDMETHODIMP CaptureClass::OnReadSample(
 					if (gOptions[mWhoAmI] & CAPTURE_OPTION_RAWDATA)
 					{
 						// Ah ok, raw data was requested, so let's copy it then.
-
+						byte* buffer = NULL;
+						DWORD maxLength = 0;
+						DWORD currentLength = 0;
+						mediabuffer->Lock(&buffer, &maxLength, &currentLength);
+						int* output = (int*)(gParams[mWhoAmI].mTargetBuf);
+						//Put the length of the used buffer first
+						*output = currentLength;
+						//Now copy the memory to the output
+						CopyMemory(output+1, buffer, currentLength);
+						mediabuffer->Unlock();
+						//Not really sure what this code is doing -- maybe it's for RAW 4:4:4 data or something? Seems very broken, but unable to test
+						/*
 						VideoBufferLock buffer(mediabuffer);    // Helper object to lock the video buffer.
 						BYTE *scanline0 = NULL;
 						LONG stride = 0;
@@ -159,19 +184,7 @@ STDMETHODIMP CaptureClass::OnReadSample(
 						}
 						LONG bytes = stride * mCaptureBufferHeight;
 						CopyMemory(mCaptureBuffer, scanline0, bytes);
-					}
-				}
-
-				int i, j;
-				int *dst = (int*)gParams[mWhoAmI].mTargetBuf;
-				int *src = (int*)mCaptureBuffer;
-				for (i = 0; i < gParams[mWhoAmI].mHeight; i++)
-				{
-					for (j = 0; j < gParams[mWhoAmI].mWidth; j++, dst++)
-					{
-						*dst = src[
-							(i * mCaptureBufferHeight / gParams[mWhoAmI].mHeight) * mCaptureBufferWidth +
-								(j * mCaptureBufferWidth / gParams[mWhoAmI].mWidth)];
+						*/
 					}
 				}
 				gDoCapture[mWhoAmI] = 1;
@@ -541,6 +554,8 @@ HRESULT CaptureClass::setVideoType(IMFMediaType *aType)
 	// (This also validates the format type.)
 
 	hr = setConversionFunction(subtype);
+	printf("conversionfunction.. %d\n", hr);
+	fflush(stdout);
 
 	DO_OR_DIE;
 
@@ -738,7 +753,8 @@ HRESULT CaptureClass::listModes(int aDevice, struct CaptureModeParam* modes, int
 			printf("fourcc %c%c%c%c\n", temp[0], temp[1], temp[2], temp[3]);
 			fflush(stdout);*/
 			char* temp = (char*)&(nativeGuid.Data1);
-			snprintf(modes[count].format,sizeof(modes[count].format), "%c%c%c%c_BAD", temp[0],temp[1],temp[2],temp[3]);
+			//Add an _RAW string to it to indicate it only supports raw outputs
+			snprintf(modes[count].format,sizeof(modes[count].format), "%c%c%c%c_RAW", temp[0],temp[1],temp[2],temp[3]);
 		}
 
 		//if (isMediaOk(nativeType, count))
@@ -775,7 +791,7 @@ HRESULT CaptureClass::listModes(int aDevice, struct CaptureModeParam* modes, int
 	return count;
 }
 
-HRESULT CaptureClass::initCapture(int aDevice)
+HRESULT CaptureClass::initCapture(int aDevice, int selectedMode)
 {
 	mWhoAmI = aDevice;
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -843,7 +859,15 @@ HRESULT CaptureClass::initCapture(int aDevice)
 
 		DO_OR_DIE_CRITSECTION;
 
-		int preferredmode = scanMediaTypes(gParams[mWhoAmI].mWidth, gParams[mWhoAmI].mHeight);
+		int preferredmode = selectedMode;
+		if (preferredmode == -1)
+		{
+			preferredmode = scanMediaTypes(gParams[mWhoAmI].mWidth, gParams[mWhoAmI].mHeight);
+		}
+		else {
+			printf("Forcing mode %d\n", selectedMode);
+			fflush(stdout);
+		}
 		mUsedIndex = preferredmode;
 
 		hr = mReader->GetNativeMediaType(

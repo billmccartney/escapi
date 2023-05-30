@@ -27,14 +27,14 @@ void CleanupDevice(int aDevice)
 		gDevice[aDevice] = 0;
 	}
 }
-HRESULT InitDevice(int aDevice)
+HRESULT InitDevice(int aDevice, int selectedMode)
 {
 	if (gDevice[aDevice])
 	{
 		CleanupDevice(aDevice);
 	}
 	gDevice[aDevice] = new CaptureClass;
-	HRESULT hr = gDevice[aDevice]->initCapture(aDevice);
+	HRESULT hr = gDevice[aDevice]->initCapture(aDevice, selectedMode);
 	if (FAILED(hr))
 	{
 		delete gDevice[aDevice];
@@ -150,7 +150,9 @@ void CheckForFail(int aDevice)
 	{
 		gDevice[aDevice]->mRedoFromStart = 0;
 		gDevice[aDevice]->deinitCapture();
-		HRESULT hr = gDevice[aDevice]->initCapture(aDevice);
+		int mode = gParams[aDevice].selectedMode;
+		if (!gParams[aDevice].forceOverride)mode = -1;
+		HRESULT hr = gDevice[aDevice]->initCapture(aDevice, mode);
 		if (FAILED(hr))
 		{
 			delete gDevice[aDevice];

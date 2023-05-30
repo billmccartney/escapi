@@ -10,6 +10,8 @@ struct SimpleCapParams
 	int mWidth;
 	/* Buffer height */
 	int mHeight;
+	int forceOverride; //set to anything non-zero to trigger forcing the mode
+	int selectedMode; //This is the mode 
 };
 
 enum CAPTURE_PROPETIES
