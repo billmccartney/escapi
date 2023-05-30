@@ -23,6 +23,7 @@ extern int SetProperty(int device, int prop, float value, int autoval);
 extern int GetPropertyRange(int aDevice, int aProp, long* minimum, long* maximum, long* step, long* def, long* flags);
 extern int GetPropertyRaw(int aDevice, int aProp, long* aValue, long* aAuto);
 extern int SetPropertyRaw(int aDevice, int aProp, long aValue, long aAuto);
+extern HRESULT ListModes(int aDevice, struct CaptureModeParam* modes, int* count);
 
 BOOL APIENTRY DllMain(HANDLE hModule,
 	DWORD  ul_reason_for_call,
@@ -153,6 +154,7 @@ extern "C" int __declspec(dllexport) setCapturePropertyRaw(unsigned int deviceno
 {
 	if (deviceno > MAXDEVICES)
 		return 0;
+	printf("setting property raw.........................................\n");
 	return SetPropertyRaw(deviceno, aProp, aValue, aAuto);
 }
 
@@ -172,3 +174,11 @@ extern "C" int __declspec(dllexport) initCaptureWithOptions(unsigned int devicen
 	return 1;
 }
 
+extern "C" int __declspec(dllexport) listCaptureModes(unsigned int deviceno, struct CaptureModeParam* modes, int* count)
+{
+	if (deviceno > MAXDEVICES)
+		return 0;
+	printf("listCaptureModes.........................................\n");
+	fflush(stdout);
+	return ListModes(deviceno, modes, count);
+}

@@ -32,6 +32,7 @@ public:
 	int isMediaOk(IMFMediaType *aType, int aIndex);
 	int scanMediaTypes(unsigned int aWidth, unsigned int aHeight);
 	HRESULT initCapture(int aDevice);
+	HRESULT listModes(int aDevice, struct CaptureModeParam* modes, int *count);
 	void deinitCapture();
 
 	long                    mRefCount;        // Reference count.

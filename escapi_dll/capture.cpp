@@ -662,7 +662,7 @@ int CaptureClass::scanMediaTypes(unsigned int aWidth, unsigned int aHeight)
 			int error = 0;
 
 			// prefer (hugely) to get too much than too little data..
-
+			//printf("mediasize h=%d w=%d\n", height, width);
 			if (aWidth < width) error += (width - aWidth);
 			if (aHeight < height) error += (height - aHeight);
 			if (aWidth > width) error += (aWidth - width) * 2;
@@ -686,6 +686,93 @@ int CaptureClass::scanMediaTypes(unsigned int aWidth, unsigned int aHeight)
 		count++;
 	}
 	return bestfit;
+}
+
+HRESULT CaptureClass::listModes(int aDevice, struct CaptureModeParam* modes, int* modeCount)
+{
+	//This is based off of scanMediaTypes and follows the same patterns to fill up the structure
+	HRESULT hr;
+	HRESULT nativeTypeErrorCode = S_OK;
+	DWORD count = 0;
+	int maximumCount = *modeCount;
+	//Clear the output buffer
+	memset(modes, 0, sizeof(struct CaptureModeParam) * maximumCount);
+
+	while (nativeTypeErrorCode == S_OK)
+	{
+		IMFMediaType* nativeType = NULL;
+		nativeTypeErrorCode = mReader->GetNativeMediaType(
+			(DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM,
+			count,
+			&nativeType);
+		ScopedRelease<IMFMediaType> nativeType_s(nativeType);
+
+		if (nativeTypeErrorCode != S_OK) continue;
+
+		// get the media type 
+		GUID nativeGuid = { 0 };
+		hr = nativeType->GetGUID(MF_MT_SUBTYPE, &nativeGuid);
+
+		if (FAILED(hr)) return 0;
+		//Here we write the string as needed..
+		if (nativeGuid == MFVideoFormat_RGB32) {
+			strncpy(modes[count].format, "RGB32", sizeof(modes[count].format));
+		}
+		else if (nativeGuid == MFVideoFormat_RGB24) {
+			strncpy(modes[count].format, "RGB24", sizeof(modes[count].format));
+		}
+		else if (nativeGuid == MFVideoFormat_YUY2) {
+			strncpy(modes[count].format, "YUY2", sizeof(modes[count].format));
+		}
+		else if (nativeGuid == MFVideoFormat_NV12) {
+			strncpy(modes[count].format, "NV12", sizeof(modes[count].format));
+		}
+		else
+		 {
+			/*
+			printf("Guid = {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
+				nativeGuid.Data1, nativeGuid.Data2, nativeGuid.Data3,
+				nativeGuid.Data4[0], nativeGuid.Data4[1], nativeGuid.Data4[2], nativeGuid.Data4[3],
+				nativeGuid.Data4[4], nativeGuid.Data4[5], nativeGuid.Data4[6], nativeGuid.Data4[7]);
+			char* temp = (char*)&(nativeGuid.Data1);
+			printf("fourcc %c%c%c%c\n", temp[0], temp[1], temp[2], temp[3]);
+			fflush(stdout);*/
+			char* temp = (char*)&(nativeGuid.Data1);
+			snprintf(modes[count].format,sizeof(modes[count].format), "%c%c%c%c_BAD", temp[0],temp[1],temp[2],temp[3]);
+		}
+
+		//if (isMediaOk(nativeType, count))
+		//{
+			UINT32 width, height;
+			hr = MFGetAttributeSize(nativeType, MF_MT_FRAME_SIZE, &width, &height);
+
+			if (FAILED(hr)) return 0;
+
+			modes[count].width = width;
+			modes[count].height = height;
+
+			int error = 0;
+
+			UINT32 num=0, den=0, fps=0;
+			hr = MFGetAttributeRatio(nativeType, MF_MT_FRAME_RATE_RANGE_MIN, &num, &den);
+			if (FAILED(hr)) return 0;
+			modes[count].fpsMaxDenominator = den;
+			modes[count].fpsMaxNumerator = num;
+
+			hr = MFGetAttributeRatio(nativeType, MF_MT_FRAME_RATE_RANGE_MIN, &num, &den);
+			if (FAILED(hr)) return 0;
+			
+			modes[count].fpsMinDenominator = den;
+			modes[count].fpsMinNumerator = num;
+		//}
+
+		count++;
+		if (count == maximumCount) {
+			break; //Just silently end
+		}
+	}
+	*modeCount = count;
+	return count;
 }
 
 HRESULT CaptureClass::initCapture(int aDevice)

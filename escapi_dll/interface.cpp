@@ -43,6 +43,12 @@ HRESULT InitDevice(int aDevice)
 	return hr;
 }
 
+HRESULT ListModes(int aDevice, struct CaptureModeParam* modes, int* count)
+{
+	if (!gDevice[aDevice])
+		return 0;
+	return gDevice[aDevice]->listModes(aDevice, modes, count);
+}
 
 
 int CountCaptureDevices()

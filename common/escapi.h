@@ -35,6 +35,17 @@ enum CAPTURE_PROPETIES
 };
 
 
+struct CaptureModeParam 
+{
+	unsigned long width;
+	unsigned long height;
+	unsigned long fpsMaxNumerator;
+	unsigned long fpsMaxDenominator;
+	unsigned long fpsMinNumerator;
+	unsigned long fpsMinDenominator;
+	char format[16];
+};
+
 /* Sets up the ESCAPI DLL and the function pointers below. Call this first! */
 /* Returns number of capture devices found (same as countCaptureDevices, below) */
 extern int setupESCAPI();
