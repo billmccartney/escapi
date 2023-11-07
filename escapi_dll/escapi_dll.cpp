@@ -156,7 +156,7 @@ extern "C" int __declspec(dllexport) setCapturePropertyRaw(unsigned int deviceno
 {
 	if (deviceno > MAXDEVICES)
 		return 0;
-	printf("setting property raw.........................................\n");
+	//printf("setting property raw.........................................\n");
 	return SetPropertyRaw(deviceno, aProp, aValue, aAuto);
 }
 
