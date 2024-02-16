@@ -554,8 +554,8 @@ HRESULT CaptureClass::setVideoType(IMFMediaType *aType)
 	// (This also validates the format type.)
 
 	hr = setConversionFunction(subtype);
-	printf("conversionfunction.. %d\n", hr);
-	fflush(stdout);
+	//printf("conversionfunction.. %d\n", hr);
+	//fflush(stdout);
 
 	DO_OR_DIE;
 

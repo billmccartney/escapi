@@ -182,7 +182,7 @@ extern "C" int __declspec(dllexport) listCaptureModes(unsigned int deviceno, str
 {
 	if (deviceno > MAXDEVICES)
 		return 0;
-	printf("listCaptureModes.........................................\n");
-	fflush(stdout);
+	//printf("listCaptureModes.........................................\n");
+	//fflush(stdout);
 	return ListModes(deviceno, modes, count);
 }
