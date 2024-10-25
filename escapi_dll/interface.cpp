@@ -16,6 +16,7 @@ struct SimpleCapParams gParams[MAXDEVICES];
 CaptureClass *gDevice[MAXDEVICES] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int gDoCapture[MAXDEVICES];
 int gOptions[MAXDEVICES];
+int gFailed[MAXDEVICES];
 
 
 void CleanupDevice(int aDevice)
@@ -145,9 +146,10 @@ void CheckForFail(int aDevice)
 {
 	if (!gDevice[aDevice])
 		return;
-
 	if (gDevice[aDevice]->mRedoFromStart)
 	{
+		gFailed[aDevice] = 1;
+		return; //Don't try to re-init, just fail (for now) and return (forcing full re-init)
 		gDevice[aDevice]->mRedoFromStart = 0;
 		gDevice[aDevice]->deinitCapture();
 		int mode = gParams[aDevice].selectedMode;
@@ -164,8 +166,12 @@ void CheckForFail(int aDevice)
 
 int GetErrorCode(int aDevice)
 {
+	if (gFailed[aDevice])
+		return -123;
 	if (!gDevice[aDevice])
 		return 0;
+	if (gDevice[aDevice]->mRedoFromStart)
+		return -123;
 	return gDevice[aDevice]->mErrorCode;
 }
 
